@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart'
 import 'package:portfolio/cubit/text_loop_cubit.dart';
 import 'package:portfolio/cubit/time_cubit_cubit.dart';
 import 'package:portfolio/cubit/window_cubit.dart';
+import 'package:portfolio/profile_page.dart';
 import 'package:portfolio/window_model.dart';
 import 'package:portfolio/window_widget.dart';
 
@@ -41,7 +42,7 @@ class DesktopWidget extends StatelessWidget {
                                 id,
                                 context,
                                 "Profile",
-                                Container(),
+                                ProfilePage(),
                               ),
                             );
                           },
@@ -56,6 +57,21 @@ class DesktopWidget extends StatelessWidget {
                                 id,
                                 context,
                                 "Projects",
+                                Container(),
+                              ),
+                            );
+                          },
+                        ),
+                        DesktopIcon(
+                          tooltip: "Mini Games",
+                          icon: Icons.gamepad,
+                          onTap: () {
+                            final id = Random().nextInt(1000).toString();
+                            context.read<WindowCubit>().addWindow(
+                              plantillaWindow(
+                                id,
+                                context,
+                                "Mini Games",
                                 Container(),
                               ),
                             );
@@ -94,8 +110,8 @@ class DesktopWidget extends StatelessWidget {
       centerTitle: true,
       toolbarHeight: MediaQuery.of(context).size.height * 0.05,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      actions: [IconButton(icon: const Icon(Icons.menu), onPressed: () {})],
 
+      //actions: [IconButton(icon: const Icon(Icons.menu), onPressed: () {})],
       title: BlocProvider(
         create: (context) => TimeCubitCubit(),
         child: BlocBuilder<TimeCubitCubit, String>(
@@ -164,6 +180,8 @@ class Dock extends StatelessWidget {
         return Icons.folder;
       case "Profile":
         return Icons.person;
+      case "Mini Games":
+        return Icons.gamepad;
       default:
         return Icons.app_shortcut;
     }
