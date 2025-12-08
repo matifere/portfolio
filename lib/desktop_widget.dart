@@ -36,21 +36,7 @@ class DesktopWidget extends StatelessWidget {
                           onTap: () {
                             final id = Random().nextInt(1000).toString();
                             context.read<WindowCubit>().addWindow(
-                              WindowWidget(
-                                window: WindowModel(
-                                  id: id,
-                                  title: "Profile",
-                                  content: Container(),
-                                  size: const Size(800, 500),
-                                ),
-                                onClose: () {
-                                  context.read<WindowCubit>().removeWindow(id);
-                                },
-                                onFocus: () {
-                                  context.read<WindowCubit>().focusWindow(id);
-                                },
-                                screenSize: MediaQuery.of(context).size,
-                              ),
+                              plantillaWindow(id, context, "Profile"),
                             );
                           },
                         ),
@@ -60,21 +46,7 @@ class DesktopWidget extends StatelessWidget {
                           onTap: () {
                             final id = Random().nextInt(1000).toString();
                             context.read<WindowCubit>().addWindow(
-                              WindowWidget(
-                                window: WindowModel(
-                                  id: id,
-                                  title: "Projects",
-                                  content: Container(),
-                                  size: const Size(800, 500),
-                                ),
-                                onClose: () {
-                                  context.read<WindowCubit>().removeWindow(id);
-                                },
-                                onFocus: () {
-                                  context.read<WindowCubit>().focusWindow(id);
-                                },
-                                screenSize: MediaQuery.of(context).size,
-                              ),
+                              plantillaWindow(id, context, "Projects"),
                             );
                           },
                         ),
@@ -130,26 +102,108 @@ class Dock extends StatelessWidget {
           bottomRight: Radius.circular(50),
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [DockIcon(icon: Icons.folder, tooltip: "Projects")],
+      child: BlocBuilder<WindowCubit, List<WindowWidget>>(
+        builder: (context, state) {
+          final pinnedApps = {"Projects"};
+          final openApps = state.map((w) => w.window.title).toSet();
+          final minimizedApps = context
+              .read<WindowCubit>()
+              .minimizedWindows
+              .map((w) => w.window.title)
+              .toSet();
+
+          final dockApps = {...pinnedApps, ...openApps, ...minimizedApps};
+
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: dockApps.map((title) {
+              return DockIcon(
+                icon: _getIconForTitle(title),
+                tooltip: title,
+                onTap: () => _handleWindowAction(context, state, title),
+                minimized: context.read<WindowCubit>().minimizedWindows.any(
+                  (w) => w.window.title == title,
+                ),
+              );
+            }).toList(),
+          );
+        },
       ),
     );
+  }
+
+  IconData _getIconForTitle(String title) {
+    switch (title) {
+      case "Projects":
+        return Icons.folder;
+      case "Profile":
+        return Icons.person;
+      default:
+        return Icons.app_shortcut;
+    }
+  }
+
+  void _handleWindowAction(
+    BuildContext context,
+    List<WindowWidget> activeWindows,
+    String title,
+  ) {
+    final cubit = context.read<WindowCubit>();
+    final minimizedWindow = cubit.minimizedWindows
+        .where((w) => w.window.title == title)
+        .firstOrNull;
+    final activeWindow = activeWindows
+        .where((w) => w.window.title == title)
+        .firstOrNull;
+
+    if (minimizedWindow != null) {
+      cubit.maximizeWindow(minimizedWindow.window.id);
+    } else if (activeWindow != null) {
+      cubit.focusWindow(activeWindow.window.id);
+    } else {
+      final id = Random().nextInt(1000).toString();
+      cubit.addWindow(plantillaWindow(id, context, title));
+    }
   }
 }
 
 class DockIcon extends StatelessWidget {
-  const DockIcon({super.key, required this.tooltip, required this.icon});
+  const DockIcon({
+    super.key,
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+    this.minimized = false,
+  });
 
   final String tooltip;
   final IconData icon;
+  final VoidCallback onTap;
+  final bool minimized;
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () {},
-      icon: Icon(icon, size: 30),
-      tooltip: tooltip,
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Row(
+        children: [
+          minimized
+              ? Container(
+                  height: 5,
+                  width: 5,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                )
+              : SizedBox(),
+          IconButton(
+            onPressed: onTap,
+            icon: Icon(icon, size: 30),
+            tooltip: tooltip,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -205,4 +259,28 @@ class Background extends StatelessWidget {
       ),
     );
   }
+}
+
+WindowWidget plantillaWindow(String id, BuildContext context, String title) {
+  return WindowWidget(
+    window: WindowModel(
+      id: id,
+      title: title,
+      content: Container(),
+      size: const Size(800, 500),
+    ),
+    onClose: () {
+      context.read<WindowCubit>().removeWindow(id);
+    },
+    onFocus: () {
+      context.read<WindowCubit>().focusWindow(id);
+    },
+    onMinimize: () {
+      context.read<WindowCubit>().minimizeWindow(id);
+    },
+    onMaximize: () {
+      context.read<WindowCubit>().maximizeWindow(id);
+    },
+    screenSize: MediaQuery.of(context).size,
+  );
 }

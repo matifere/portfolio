@@ -5,6 +5,8 @@ class WindowWidget extends StatelessWidget {
   final WindowModel window;
   final VoidCallback onClose;
   final VoidCallback onFocus;
+  final VoidCallback onMinimize;
+  final VoidCallback onMaximize;
   final Size screenSize;
 
   const WindowWidget({
@@ -12,6 +14,8 @@ class WindowWidget extends StatelessWidget {
     required this.window,
     required this.onClose,
     required this.onFocus,
+    required this.onMinimize,
+    required this.onMaximize,
     required this.screenSize,
   });
 
@@ -76,12 +80,23 @@ class WindowWidget extends StatelessWidget {
               border: Border(bottom: BorderSide(color: Colors.white10)),
             ),
             child: Row(
+              spacing: 16,
               children: [
                 Text(
                   window.title,
                   style: const TextStyle(color: Colors.white70),
                 ),
                 const Spacer(),
+                IconButton(
+                  icon: const Icon(
+                    Icons.minimize,
+                    size: 16,
+                    color: Colors.white54,
+                  ),
+                  onPressed: onMinimize,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
                 IconButton(
                   icon: const Icon(
                     Icons.close,
