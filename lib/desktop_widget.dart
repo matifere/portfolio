@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'
     show BlocProvider, BlocBuilder, ReadContext;
+import 'package:portfolio/cubit/text_loop_cubit.dart';
 import 'package:portfolio/cubit/time_cubit_cubit.dart';
 import 'package:portfolio/cubit/window_cubit.dart';
 import 'package:portfolio/window_model.dart';
@@ -36,7 +37,12 @@ class DesktopWidget extends StatelessWidget {
                           onTap: () {
                             final id = Random().nextInt(1000).toString();
                             context.read<WindowCubit>().addWindow(
-                              plantillaWindow(id, context, "Profile"),
+                              plantillaWindow(
+                                id,
+                                context,
+                                "Profile",
+                                Container(),
+                              ),
                             );
                           },
                         ),
@@ -46,12 +52,34 @@ class DesktopWidget extends StatelessWidget {
                           onTap: () {
                             final id = Random().nextInt(1000).toString();
                             context.read<WindowCubit>().addWindow(
-                              plantillaWindow(id, context, "Projects"),
+                              plantillaWindow(
+                                id,
+                                context,
+                                "Projects",
+                                Container(),
+                              ),
                             );
                           },
                         ),
                       ],
                     ),
+                    Spacer(),
+                    Center(
+                      child: BlocProvider(
+                        create: (context) => TextLoopCubit()..startLoop(),
+                        child: BlocBuilder<TextLoopCubit, String>(
+                          builder: (context, state) {
+                            return Text(
+                              state,
+                              style: Theme.of(context).textTheme.displayLarge,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    Spacer(),
                   ],
                 ),
                 ...state,
@@ -162,7 +190,7 @@ class Dock extends StatelessWidget {
       cubit.focusWindow(activeWindow.window.id);
     } else {
       final id = Random().nextInt(1000).toString();
-      cubit.addWindow(plantillaWindow(id, context, title));
+      cubit.addWindow(plantillaWindow(id, context, title, Container()));
     }
   }
 }
@@ -247,7 +275,7 @@ class Background extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assets/background.jpg"),
+          image: AssetImage("assets/background.jpeg"),
           fit: BoxFit.cover,
         ),
       ),
@@ -261,12 +289,17 @@ class Background extends StatelessWidget {
   }
 }
 
-WindowWidget plantillaWindow(String id, BuildContext context, String title) {
+WindowWidget plantillaWindow(
+  String id,
+  BuildContext context,
+  String title,
+  Widget content,
+) {
   return WindowWidget(
     window: WindowModel(
       id: id,
       title: title,
-      content: Container(),
+      content: content,
       size: const Size(800, 500),
     ),
     onClose: () {

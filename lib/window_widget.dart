@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/window_model.dart';
 
-class WindowWidget extends StatelessWidget {
+class WindowWidget extends StatefulWidget {
   final WindowModel window;
   final VoidCallback onClose;
   final VoidCallback onFocus;
@@ -20,9 +20,36 @@ class WindowWidget extends StatelessWidget {
   });
 
   @override
+  State<WindowWidget> createState() => _WindowWidgetState();
+}
+
+class _WindowWidgetState extends State<WindowWidget> {
+  double initialHeight = 50;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 1), () {
+      initialHeight = widget.window.size.height;
+      setState(() {});
+    });
+    widget.window.position.addListener(_handlePositionChange);
+  }
+
+  @override
+  void dispose() {
+    widget.window.position.removeListener(_handlePositionChange);
+    super.dispose();
+  }
+
+  void _handlePositionChange() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Offset>(
-      valueListenable: window.position,
+      valueListenable: widget.window.position,
       builder: (context, currentPos, child) {
         return Positioned(
           left: currentPos.dx,
@@ -30,7 +57,7 @@ class WindowWidget extends StatelessWidget {
           child: GestureDetector(
             onPanUpdate: (details) => _handleDrag(details, currentPos),
 
-            onTap: onFocus,
+            onTap: widget.onFocus,
             child: child,
           ),
         );
@@ -44,21 +71,23 @@ class WindowWidget extends StatelessWidget {
 
     final double clampedX = newOffset.dx.clamp(
       0,
-      screenSize.width - window.size.width,
+      widget.screenSize.width - widget.window.size.width,
     );
 
     final double clampedY = newOffset.dy.clamp(
       0,
-      screenSize.height - window.size.height - 48,
+      widget.screenSize.height - widget.window.size.height - 48,
     );
 
-    window.position.value = Offset(clampedX, clampedY);
+    widget.window.position.value = Offset(clampedX, clampedY);
   }
 
   Widget _buildWindowVisuals() {
-    return Container(
-      width: window.size.width,
-      height: window.size.height,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.bounceInOut,
+      width: widget.window.size.width,
+      height: initialHeight,
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(12),
@@ -83,7 +112,7 @@ class WindowWidget extends StatelessWidget {
               spacing: 16,
               children: [
                 Text(
-                  window.title,
+                  widget.window.title,
                   style: const TextStyle(color: Colors.white70),
                 ),
                 const Spacer(),
@@ -93,7 +122,7 @@ class WindowWidget extends StatelessWidget {
                     size: 16,
                     color: Colors.white54,
                   ),
-                  onPressed: onMinimize,
+                  onPressed: widget.onMinimize,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -103,14 +132,14 @@ class WindowWidget extends StatelessWidget {
                     size: 16,
                     color: Colors.white54,
                   ),
-                  onPressed: onClose,
+                  onPressed: widget.onClose,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
               ],
             ),
           ),
-          Expanded(child: window.content),
+          Expanded(child: widget.window.content),
         ],
       ),
     );
