@@ -73,7 +73,14 @@ class DesktopWidget extends StatelessWidget {
                                 id,
                                 context,
                                 "Mini Games",
-                                Container(),
+                                Center(
+                                  child: Text(
+                                    "Upcoming...",
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.displayLarge,
+                                  ),
+                                ),
                               ),
                             );
                           },
