@@ -63,24 +63,22 @@ class DesktopWidget extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Spacer(),
-                    Center(
-                      child: BlocProvider(
-                        create: (context) => TextLoopCubit()..startLoop(),
-                        child: BlocBuilder<TextLoopCubit, String>(
-                          builder: (context, state) {
-                            return Text(
-                              state,
-                              style: Theme.of(context).textTheme.displayLarge,
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    Spacer(),
                   ],
+                ),
+                Center(
+                  child: BlocProvider(
+                    create: (context) => TextLoopCubit()..startLoop(),
+                    child: BlocBuilder<TextLoopCubit, String>(
+                      builder: (context, state) {
+                        return Text(
+                          state,
+                          style: Theme.of(context).textTheme.displayLarge,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 ...state,
               ],
