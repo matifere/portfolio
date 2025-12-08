@@ -39,6 +39,54 @@ class ProjectsPage extends StatelessWidget {
               "HackITBA is a hackathon organized by the ITBA Computer Science Society. It is a great opportunity to meet other students and professionals in the field of computer science and to learn new things.",
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            Divider(
+              thickness: 2,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            Row(
+              children: [
+                Text(
+                  "Node Data Structures",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                TextButton(
+                  child: Text(
+                    "See the project",
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () async => await _launchInBrowser(
+                    Uri.parse(
+                      "https://github.com/matifere/data-structures-node",
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              "Node Data Structures is a project that implements data structures using Node.js.",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            Row(
+              children: [
+                Text(
+                  "You can also see the implementation of the data structures in Java.",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                TextButton(
+                  child: Text(
+                    "here",
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () async => await _launchInBrowser(
+                    Uri.parse("https://github.com/matifere/Talleres-AED"),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
