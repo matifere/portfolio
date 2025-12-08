@@ -8,6 +8,7 @@ import 'package:portfolio/cubit/text_loop_cubit.dart';
 import 'package:portfolio/cubit/time_cubit_cubit.dart';
 import 'package:portfolio/cubit/window_cubit.dart';
 import 'package:portfolio/profile_page.dart';
+import 'package:portfolio/projects_page.dart';
 import 'package:portfolio/window_model.dart';
 import 'package:portfolio/window_widget.dart';
 
@@ -57,7 +58,7 @@ class DesktopWidget extends StatelessWidget {
                                 id,
                                 context,
                                 "Projects",
-                                Container(),
+                                ProjectsPage(),
                               ),
                             );
                           },
@@ -206,7 +207,7 @@ class Dock extends StatelessWidget {
       cubit.focusWindow(activeWindow.window.id);
     } else {
       final id = Random().nextInt(1000).toString();
-      cubit.addWindow(plantillaWindow(id, context, title, Container()));
+      cubit.addWindow(plantillaWindow(id, context, title, ProjectsPage()));
     }
   }
 }

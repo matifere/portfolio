@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -87,17 +90,34 @@ class ProfilePage extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 Text("Contact", style: Theme.of(context).textTheme.titleLarge),
-                Text(
-                  "Email: matifere@gmail.com",
-                  style: Theme.of(context).textTheme.bodyMedium,
+
+                TextButton(
+                  child: Text(
+                    "Email: matifere@gmail.com",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  onPressed: () async => await _launchInBrowser(
+                    Uri.parse("mailto:matifere@gmail.com"),
+                  ),
                 ),
-                Text(
-                  "Linkedin: www.linkedin.com/in/matías-ferechian",
-                  style: Theme.of(context).textTheme.bodyMedium,
+
+                TextButton(
+                  child: Text(
+                    "Linkedin: www.linkedin.com/in/matías-ferechian",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  onPressed: () async => await _launchInBrowser(
+                    Uri.parse("https://linkedin.com/in/matías-ferechian"),
+                  ),
                 ),
-                Text(
-                  "Github: github.com/matifere",
-                  style: Theme.of(context).textTheme.bodyMedium,
+                TextButton(
+                  child: Text(
+                    "Github: github.com/matifere",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  onPressed: () async => await _launchInBrowser(
+                    Uri.parse("https://github.com/matifere"),
+                  ),
                 ),
               ],
             ),
@@ -105,5 +125,11 @@ class ProfilePage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Future<void> _launchInBrowser(Uri url) async {
+  if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+    throw Exception('Could not launch $url');
   }
 }
