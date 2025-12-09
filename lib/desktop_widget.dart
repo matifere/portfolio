@@ -73,12 +73,86 @@ class DesktopWidget extends StatelessWidget {
                                 id,
                                 context,
                                 "Mini Games",
-                                Center(
-                                  child: Text(
-                                    "Upcoming...",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.displayLarge,
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Wrap(
+                                    direction: Axis.horizontal,
+                                    spacing: 16,
+                                    runSpacing: 16,
+                                    children: [
+                                      DesktopIcon(
+                                        icon: Icons.gamepad,
+                                        tooltip: "Snake",
+                                        onTap: () {
+                                          final id = Random()
+                                              .nextInt(1000)
+                                              .toString();
+                                          context.read<WindowCubit>().addWindow(
+                                            plantillaWindow(
+                                              id,
+                                              context,
+                                              "Snake",
+                                              Center(
+                                                child: Text(
+                                                  "Upcoming",
+                                                  style: Theme.of(
+                                                    context,
+                                                  ).textTheme.titleMedium,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      DesktopIcon(
+                                        icon: Icons.gamepad,
+                                        tooltip: "Tetris",
+                                        onTap: () {
+                                          final id = Random()
+                                              .nextInt(1000)
+                                              .toString();
+                                          context.read<WindowCubit>().addWindow(
+                                            plantillaWindow(
+                                              id,
+                                              context,
+                                              "Tetris",
+                                              Center(
+                                                child: Text(
+                                                  "Upcoming",
+                                                  style: Theme.of(
+                                                    context,
+                                                  ).textTheme.titleMedium,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      DesktopIcon(
+                                        icon: Icons.gamepad,
+                                        tooltip: "Pong",
+                                        onTap: () {
+                                          final id = Random()
+                                              .nextInt(1000)
+                                              .toString();
+                                          context.read<WindowCubit>().addWindow(
+                                            plantillaWindow(
+                                              id,
+                                              context,
+                                              "Pong",
+                                              Center(
+                                                child: Text(
+                                                  "Upcoming",
+                                                  style: Theme.of(
+                                                    context,
+                                                  ).textTheme.titleMedium,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -319,11 +393,13 @@ WindowWidget plantillaWindow(
   String title,
   Widget content,
 ) {
+  final initialPosition = _calculateInitialPosition(context);
   return WindowWidget(
     window: WindowModel(
       id: id,
       title: title,
       content: content,
+      initialPosition: initialPosition,
       size: const Size(800, 500),
     ),
     onClose: () {
@@ -340,4 +416,30 @@ WindowWidget plantillaWindow(
     },
     screenSize: MediaQuery.of(context).size,
   );
+}
+
+Offset _calculateInitialPosition(BuildContext context) {
+  final existingWindows = context.read<WindowCubit>().state;
+  const startPos = Offset(100, 100);
+  const offsetStep = Offset(30, 30);
+
+  Offset candidate = startPos;
+
+  for (int i = 0; i < 50; i++) {
+    bool hasOverlap = existingWindows.any((w) {
+      return (w.window.position.value - candidate).distance < 10.0;
+    });
+
+    if (!hasOverlap) {
+      return candidate;
+    }
+
+    candidate += offsetStep;
+
+    if (candidate.dy > 500 || candidate.dx > 800) {
+      candidate = startPos + Offset(200.0 * ((i / 10).floor() + 1), 0);
+    }
+  }
+
+  return startPos;
 }

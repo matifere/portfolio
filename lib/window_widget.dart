@@ -55,7 +55,7 @@ class _WindowWidgetState extends State<WindowWidget> {
           left: currentPos.dx,
           top: currentPos.dy,
           child: GestureDetector(
-            onPanUpdate: (details) => _handleDrag(details, currentPos),
+            onPanUpdate: _handleDrag,
 
             onTap: widget.onFocus,
             child: child,
@@ -66,8 +66,8 @@ class _WindowWidgetState extends State<WindowWidget> {
     );
   }
 
-  void _handleDrag(DragUpdateDetails details, Offset currentPos) {
-    final newOffset = currentPos + details.delta;
+  void _handleDrag(DragUpdateDetails details) {
+    final newOffset = widget.window.position.value + details.delta;
 
     final double clampedX = newOffset.dx.clamp(
       0,
