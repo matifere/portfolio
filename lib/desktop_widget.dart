@@ -7,8 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart'
 import 'package:portfolio/cubit/text_loop_cubit.dart';
 import 'package:portfolio/cubit/time_cubit_cubit.dart';
 import 'package:portfolio/cubit/window_cubit.dart';
-import 'package:portfolio/profile_page.dart';
-import 'package:portfolio/projects_page.dart';
+import 'package:portfolio/pages/profile_page.dart';
+import 'package:portfolio/pages/projects_page.dart';
+import 'package:portfolio/pages/snake_page.dart';
 import 'package:portfolio/window_model.dart';
 import 'package:portfolio/window_widget.dart';
 
@@ -92,14 +93,7 @@ class DesktopWidget extends StatelessWidget {
                                               id,
                                               context,
                                               "Snake",
-                                              Center(
-                                                child: Text(
-                                                  "Upcoming",
-                                                  style: Theme.of(
-                                                    context,
-                                                  ).textTheme.titleMedium,
-                                                ),
-                                              ),
+                                              SnakePage(),
                                             ),
                                           );
                                         },
