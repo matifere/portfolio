@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class SnakePage extends StatelessWidget {
-  const SnakePage({super.key});
+  SnakePage({super.key});
+
+  final List<int> snake = [120, 121, 122, 123, 124];
 
   @override
   Widget build(BuildContext context) {
@@ -33,28 +35,22 @@ class SnakePage extends StatelessWidget {
               thickness: 2,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 100.0,
-                vertical: 16.0,
-              ),
-              child: SizedBox(
-                height: 300,
-                width: 300,
-                child: Expanded(
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 30,
-                        ),
-                    itemCount: 30 * 30,
-                    itemBuilder: (context, index) {
-                      return SnakeTile(
-                        color: Theme.of(context).colorScheme.surface,
-                      );
-                    },
+            FractionallySizedBox(
+              widthFactor: 0.4,
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: CustomPaint(
+                    painter: SnakePainter(
+                      snake: snake,
+                      columns: 30,
+                      rows: 30,
+                      snakeColor: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                 ),
               ),
@@ -71,17 +67,46 @@ class SnakePage extends StatelessWidget {
   }
 }
 
-class SnakeTile extends StatelessWidget {
-  const SnakeTile({super.key, required this.color});
-  final Color color;
+class SnakePainter extends CustomPainter {
+  final List<int> snake;
+  final int columns;
+  final int rows;
+  final Color snakeColor;
+
+  SnakePainter({
+    required this.snake,
+    required this.columns,
+    required this.rows,
+    required this.snakeColor,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = snakeColor
+      ..style = PaintingStyle.fill;
+
+    // Calculamos el tamaño exacto de cada celda basado en el tamaño del widget
+    final cellWidth = size.width / columns;
+    final cellHeight = size.height / rows;
+
+    // Solo iteramos por la longitud de la serpiente (ej. 5 veces),
+    // NO por el total de celdas (900 veces). Esto es O(N) vs O(M).
+    for (int pos in snake) {
+      final double x = (pos % columns) * cellWidth;
+      final double y = (pos ~/ columns) * cellHeight;
+
+      // Dibujamos un rectángulo ligeramente más pequeño para que se vean bordes
+      canvas.drawRect(
+        Rect.fromLTWH(x + 1, y + 1, cellWidth - 2, cellHeight - 2),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant SnakePainter oldDelegate) {
+    // Solo redibujar si la serpiente cambió de posición
+    return oldDelegate.snake != snake;
   }
 }
