@@ -6,12 +6,9 @@ class SnakeCubit extends Cubit<List<int>> {
   bool breaker = false;
   String previousDirection = "";
 
-  /*
-   ! revelacion magica a las 3AM: todos los movimientos se pueden hacer en O(1)
-   ? vamos a quitar el tail y agregar el head, el resto de los valores siguen igual en la interaccion
-  */
-
   int _currentMoveId = 0;
+
+  // TODO: agregar limites del mapa
 
   void moveSnake(String direction, int rows) {
     if (breaker) return;
@@ -27,27 +24,30 @@ class SnakeCubit extends Cubit<List<int>> {
 
   Future<void> _moveLoop(String direction, int rows, int moveId) async {
     if (moveId != _currentMoveId) return;
+    if (isClosed) return;
 
     List<int> newState = List.from(state);
     switch (direction) {
       case "up":
-        newState.removeLast();
-        newState.insert(0, state[0] - rows);
+        newState.removeAt(0);
+        newState.add(state.last - rows);
         break;
       case "down":
-        newState.removeLast();
-        newState.insert(0, state[0] + rows);
+        newState.removeAt(0);
+        newState.add(state.last + rows);
         break;
       case "left":
-        newState.removeLast();
-        newState.insert(0, state[0] - 1);
+        newState.removeAt(0);
+        newState.add(state.last - 1);
         break;
       case "right":
-        newState.removeLast();
-        newState.insert(0, state[0] + 1);
+        newState.removeAt(0);
+        newState.add(state.last + 1);
         break;
       default:
     }
+
+    if (_offLimitsHorizontal(newState)) return;
 
     emit(newState);
     previousDirection = direction;
@@ -56,7 +56,23 @@ class SnakeCubit extends Cubit<List<int>> {
     _moveLoop(direction, rows, moveId);
   }
 
+  // TODO terminar esto
+  bool _offLimitsHorizontal(List<int> newState) {
+    int getRow = newState.first ~/ 10;
+    for (int i = 0; i < newState.length; i++) {
+      if (newState[i] ~/ 10 != getRow) return true;
+    }
+    return false;
+  }
+
   void stop() {
     breaker = !breaker;
+  }
+
+  void reset() {
+    emit([121, 122, 123, 124, 125]);
+    previousDirection = "";
+    _currentMoveId = 0;
+    breaker = false;
   }
 }
