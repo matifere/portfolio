@@ -6,6 +6,7 @@ import 'package:portfolio/cubit/snake_cubit.dart';
 class SnakePage extends StatelessWidget {
   SnakePage({super.key});
 
+  // * pos inicial del snake
   final List<int> snake = [121, 122, 123, 124, 125];
 
   @override
