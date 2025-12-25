@@ -8,7 +8,6 @@ class SnakeCubit extends Cubit<List<int>> {
 
   int _currentMoveId = 0;
 
-  // TODO: agregar limites del mapa
 
   void moveSnake(String direction, int rows) {
     if (breaker) return;
@@ -22,7 +21,7 @@ class SnakeCubit extends Cubit<List<int>> {
     _moveLoop(direction, rows, _currentMoveId);
   }
 
-  // ! esto esta al reve
+  
 
   Future<void> _moveLoop(String direction, int rows, int moveId) async {
     if (moveId != _currentMoveId) return;
@@ -48,7 +47,6 @@ class SnakeCubit extends Cubit<List<int>> {
         break;
       default:
     }
-    print(newState);
 
     if (offLimits(newState)) return;
 

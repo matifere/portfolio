@@ -2,81 +2,97 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:portfolio/cubit/snake_cubit.dart';
+import 'package:portfolio/cubit/snake_food_cubit.dart';
 
 class SnakePage extends StatelessWidget {
   SnakePage({super.key});
 
   // * pos inicial del snake
   final List<int> snake = [121, 122, 123, 124, 125];
-
+  
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SnakeCubit(),
-      child: BlocBuilder<SnakeCubit, List<int>>(
-        builder: (context, state) {
-          return Focus(
-            autofocus: true,
-            onKeyEvent: (node, event) {
-              if (event is KeyDownEvent) {
-                if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                  context.read<SnakeCubit>().moveSnake("up", 30);
-                  return KeyEventResult.handled;
-                }
-                if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-                  context.read<SnakeCubit>().moveSnake("down", 30);
-                  return KeyEventResult.handled;
-                }
-                if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-                  context.read<SnakeCubit>().moveSnake("left", 30);
-                  return KeyEventResult.handled;
-                }
-                if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-                  context.read<SnakeCubit>().moveSnake("right", 30);
-                  return KeyEventResult.handled;
-                }
-              }
-              return KeyEventResult.ignored;
-            },
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Text(
-                    "Snake",
-                    style: Theme.of(context).textTheme.displayLarge,
-                  ),
-                  Divider(
-                    thickness: 2,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  FractionallySizedBox(
-                    widthFactor: 0.4,
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: CustomPaint(
-                          painter: SnakePainter(
-                            snake: state,
-                            columns: 30,
-                            rows: 30,
-                            snakeColor: Theme.of(context).colorScheme.primary,
+    
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => SnakeCubit()),
+        BlocProvider(create: (context) => SnakeFoodCubit()),
+      ],
+      child: BlocBuilder<SnakeFoodCubit, List<int>>(
+        builder: (context, foodState) {
+          return BlocBuilder<SnakeCubit, List<int>>(
+            builder: (context, snakeState) {
+              return Focus(
+                autofocus: true,
+                onKeyEvent: (node, event) {
+                  if (event is KeyDownEvent) {
+                    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                      context.read<SnakeCubit>().moveSnake("up", 30);
+                      return KeyEventResult.handled;
+                    }
+                    if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                      context.read<SnakeCubit>().moveSnake("down", 30);
+                      return KeyEventResult.handled;
+                    }
+                    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                      context.read<SnakeCubit>().moveSnake("left", 30);
+                      return KeyEventResult.handled;
+                    }
+                    if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                      context.read<SnakeCubit>().moveSnake("right", 30);
+                      return KeyEventResult.handled;
+                    }
+                  }
+                  return KeyEventResult.ignored;
+                },
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Snake",
+                        style: Theme.of(context).textTheme.displayLarge,
+                      ),
+                      Divider(
+                        thickness: 2,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      FractionallySizedBox(
+                        widthFactor: 0.4,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: CustomPaint(
+                              painter: SnakePainter(
+                                snake: snakeState,
+                                food: foodState,
+                                foodColor: Colors.green,
+                                columns: 30,
+                                rows: 30,
+                                snakeColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      Divider(
+                        thickness: 2,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.play_arrow),
+                      ),
+                    ],
                   ),
-                  Divider(
-                    thickness: 2,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  IconButton(onPressed: () {}, icon: Icon(Icons.play_arrow)),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -86,39 +102,54 @@ class SnakePage extends StatelessWidget {
 
 class SnakePainter extends CustomPainter {
   final List<int> snake;
+  final List<int> food;
   final int columns;
   final int rows;
   final Color snakeColor;
+  final Color foodColor;
 
   SnakePainter({
     required this.snake,
     required this.columns,
     required this.rows,
     required this.snakeColor,
+    required this.food,
+    required this.foodColor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    final snakePaint = Paint()
       ..color = snakeColor
       ..style = PaintingStyle.fill;
+    final foodPaint = Paint()
+      ..color = foodColor
+      ..style = PaintingStyle.fill;
 
-    // Calculamos el tamaño exacto de cada celda basado en el tamaño del widget
     final cellWidth = size.width / columns;
     final cellHeight = size.height / rows;
 
-    // Solo iteramos por la longitud de la serpiente (ej. 5 veces),
-    // NO por el total de celdas (900 veces). Esto es O(N) vs O(M).
-    for (int pos in snake) {
+    // pintar comida
+    for (int pos in food) {
       final double x = (pos % columns) * cellWidth;
       final double y = (pos ~/ columns) * cellHeight;
 
-      // Dibujamos un rectángulo ligeramente más pequeño para que se vean bordes
       BorderRadius borderRadius = BorderRadius.circular(2);
       Rect rect = Rect.fromLTWH(x + 1, y + 1, cellWidth - 2, cellHeight - 2);
       final RRect outer = borderRadius.toRRect(rect);
 
-      canvas.drawRRect(outer, paint);
+      canvas.drawRRect(outer, foodPaint);
+    }
+    //pintar snake
+    for (int pos in snake) {
+      final double x = (pos % columns) * cellWidth;
+      final double y = (pos ~/ columns) * cellHeight;
+
+      BorderRadius borderRadius = BorderRadius.circular(2);
+      Rect rect = Rect.fromLTWH(x + 1, y + 1, cellWidth - 2, cellHeight - 2);
+      final RRect outer = borderRadius.toRRect(rect);
+
+      canvas.drawRRect(outer, snakePaint);
     }
   }
 
