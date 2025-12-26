@@ -26,19 +26,23 @@ class SnakePage extends StatelessWidget {
                 autofocus: true,
                 onKeyEvent: (node, event) {
                   if (event is KeyDownEvent) {
-                    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                    if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+                        event.logicalKey == LogicalKeyboardKey.keyK) {
                       context.read<SnakeCubit>().moveSnake("up", 30);
                       return KeyEventResult.handled;
                     }
-                    if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                    if (event.logicalKey == LogicalKeyboardKey.arrowDown ||
+                        event.logicalKey == LogicalKeyboardKey.keyJ) {
                       context.read<SnakeCubit>().moveSnake("down", 30);
                       return KeyEventResult.handled;
                     }
-                    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                    if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+                        event.logicalKey == LogicalKeyboardKey.keyH) {
                       context.read<SnakeCubit>().moveSnake("left", 30);
                       return KeyEventResult.handled;
                     }
-                    if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                    if (event.logicalKey == LogicalKeyboardKey.arrowRight ||
+                        event.logicalKey == LogicalKeyboardKey.keyL) {
                       context.read<SnakeCubit>().moveSnake("right", 30);
                       return KeyEventResult.handled;
                     }
@@ -132,6 +136,12 @@ class SnakePainter extends CustomPainter {
 
     final cellWidth = size.width / columns;
     final cellHeight = size.height / rows;
+    // pierde porque se come a si mismo
+    List<int> canibal = List.from(snake);
+    canibal.removeLast();
+    if (canibal.contains(snake.last)) {
+      context.read<SnakeCubit>().reset();
+    }
     //logica para comer
     for (int element in food) {
       if (snake.contains(element)) {

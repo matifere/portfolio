@@ -45,7 +45,10 @@ class SnakeCubit extends Cubit<List<int>> {
       default:
     }
 
-    if (offLimits(newState)) return;
+    if (offLimits(newState)) {
+      reset();
+      return;
+    }
 
     emit(newState);
     previousDirection = direction;
@@ -76,10 +79,6 @@ class SnakeCubit extends Cubit<List<int>> {
         newState[newState.length - 1] >= 900 ||
         //arriba
         newState[newState.length - 1] <= -1;
-  }
-
-  void stop() {
-    breaker = !breaker;
   }
 
   void comer(int comida) {
