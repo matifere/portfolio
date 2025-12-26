@@ -89,10 +89,6 @@ class SnakePage extends StatelessWidget {
                         thickness: 2,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.play_arrow),
-                      ),
                     ],
                   ),
                 ),
