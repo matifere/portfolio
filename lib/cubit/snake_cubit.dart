@@ -8,7 +8,6 @@ class SnakeCubit extends Cubit<List<int>> {
 
   int _currentMoveId = 0;
 
-
   void moveSnake(String direction, int rows) {
     if (breaker) return;
 
@@ -20,8 +19,6 @@ class SnakeCubit extends Cubit<List<int>> {
     _currentMoveId++;
     _moveLoop(direction, rows, _currentMoveId);
   }
-
-  
 
   Future<void> _moveLoop(String direction, int rows, int moveId) async {
     if (moveId != _currentMoveId) return;
@@ -83,6 +80,10 @@ class SnakeCubit extends Cubit<List<int>> {
 
   void stop() {
     breaker = !breaker;
+  }
+
+  void comer(int comida) {
+    state.add(comida);
   }
 
   void reset() {

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,10 +10,9 @@ class SnakePage extends StatelessWidget {
 
   // * pos inicial del snake
   final List<int> snake = [121, 122, 123, 124, 125];
-  
+
   @override
   Widget build(BuildContext context) {
-    
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => SnakeCubit()),
@@ -75,6 +75,7 @@ class SnakePage extends StatelessWidget {
                                 snakeColor: Theme.of(
                                   context,
                                 ).colorScheme.primary,
+                                context: context,
                               ),
                             ),
                           ),
@@ -107,6 +108,7 @@ class SnakePainter extends CustomPainter {
   final int rows;
   final Color snakeColor;
   final Color foodColor;
+  final BuildContext context;
 
   SnakePainter({
     required this.snake,
@@ -115,6 +117,8 @@ class SnakePainter extends CustomPainter {
     required this.snakeColor,
     required this.food,
     required this.foodColor,
+
+    required this.context,
   });
 
   @override
@@ -128,7 +132,19 @@ class SnakePainter extends CustomPainter {
 
     final cellWidth = size.width / columns;
     final cellHeight = size.height / rows;
-
+    //logica para comer
+    for (int element in food) {
+      if (snake.contains(element)) {
+        context.read<SnakeCubit>().comer(element);
+        context.read<SnakeFoodCubit>().comer(element);
+        if (food.isEmpty) {
+          context.read<SnakeFoodCubit>().crearComida(
+            Random().nextInt(2) + 1,
+            snake,
+          );
+        }
+      }
+    }
     // pintar comida
     for (int pos in food) {
       final double x = (pos % columns) * cellWidth;
